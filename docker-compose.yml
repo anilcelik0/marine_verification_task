@@ -1,0 +1,52 @@
+services:
+ 
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+
+  marine_django:
+    build: .
+    container_name: marine_django
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+    restart: always
+
+    ports:
+        - "8000:8000"
+    volumes: 
+      - .:/app
+    depends_on: 
+      - redis
+  celery:
+    build: .
+    volumes:
+      - ./services/web:/usr/src/app
+      - ./services/web/logs:/usr/src/app
+    command: celery -A marine_verification_task worker -l info
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+    restart: always
+    depends_on:
+      - redis
+      - marine_django
+    links:
+      - redis:redis
+  celery-beat:
+    build: .
+    command: celery -A marine_verification_task beat -l info
+    depends_on:
+      - redis
+      - marine_django
+      - celery
+
+
+volumes:
+   redis_data:
+   marine_project:
+
+
