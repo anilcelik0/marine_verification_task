@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     # Our apps
     'authentication.apps.AuthenticationConfig',
+    'api.apps.ApiConfig',
     
     # 3rd Party Apps
     'rest_framework',
@@ -90,9 +91,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'CONFIG': {
-            "hosts": [('redis', 6379)],
-        },
+        'LOCATION': 'redis://localhost:6379/0',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }

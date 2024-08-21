@@ -22,14 +22,15 @@ services:
       - .:/app
     depends_on: 
       - redis
+    
   celery:
     build: .
     volumes:
       - ./services/web:/usr/src/app
       - ./services/web/logs:/usr/src/app
-    command: celery -A marine_verification_task worker -l info
+    command: celery -A marine_verification_task worker --loglevel=info
     environment:
-      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BROKER=redis://redis:6379/
     restart: always
     depends_on:
       - redis
@@ -38,7 +39,7 @@ services:
       - redis:redis
   celery-beat:
     build: .
-    command: celery -A marine_verification_task beat -l info
+    command: celery -A marine_verification_task beat --loglevel=info
     depends_on:
       - redis
       - marine_django
